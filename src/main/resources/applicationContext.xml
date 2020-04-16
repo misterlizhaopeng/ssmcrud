@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+		
+		<!-- Spring 希望管理所有业务逻辑组件 -->
+		
+		<!-- 在包com.lp中，除了控制器之外，都要扫描 -->
+		<context:component-scan base-package="com.lp">
+			<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+			<!-- 异常错误处理注解 -->
+			<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+		</context:component-scan>
+		
+		
+		<context:property-placeholder location="classpath:db.properties"/>
+		
+		<!-- 通过c3p0准备数据源 -->
+		<bean id="comboPooledDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+			<property name="jdbcUrl" value="${jdbc.url}"></property>
+			<property name="driverClass" value="${jdbc.driver}"></property>
+			<property name="user" value="${jdbc.username}"></property>
+			<property name="password" value="${jdbc.psw}"></property>
+		</bean>
+		
+		<!--  sqlsessionfactory -->
+		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+			<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+			<property name="dataSource" ref="comboPooledDataSource"></property>
+			<property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+		</bean>
+		<!-- 扫描所有mapper接口-->
+		<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+			<property name="basePackage" value="com.lp.dao"/>
+		</bean>
+		<!-- mybatis-spring:scan与接口org.mybatis.spring.mapper.MapperScannerConfigurer 对应记忆！-->
+		<!-- <mybatis-spring:scan base-package="cn.l.dao" /> -->
+		
+		<!-- 配置一个可以执行批量的sqlSession -->
+		<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+			<constructor-arg name="sqlSessionFactory"  ref="sqlSessionFactory"></constructor-arg>
+			<constructor-arg name="executorType" value="BATCH"></constructor-arg>
+		</bean>
+
+		 
+		 <!-- 事务管理器 -->
+		 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		 	<property name="dataSource" ref="comboPooledDataSource"></property>
+		 </bean>
+		  <!--事务通知  -->
+		 <tx:advice id="txtAdvice" transaction-manager="transactionManager">
+		 	<tx:attributes>
+			 	<!-- 所有方法都是事务方法 -->
+		 		<tx:method name="*"/>
+		 		<!-- 以get开始的所有方法 -->
+		 		<tx:method name="get*" read-only="true"/>
+		 	</tx:attributes>
+		 </tx:advice>
+		<!-- 标注的被切点，织入声明式事务的流程中 -->
+		 <aop:config>
+		 	<!--切点  -->
+		 	<aop:pointcut expression="execution(* com.lp.service.*.*(..))" id="txPoint"/>
+		 	<!--配置事物增强  -->
+		  	<aop:advisor advice-ref="txtAdvice" pointcut-ref="txPoint"/>
+		 </aop:config>
+		<!--  注意：下面是开启基于注解的事务与上面xml声明式事务对应记忆!  -->
+		<!-- <tx:annotation-driven transaction-manager="dataSourceTransactionManager" /> -->
+		 
+		
+		 
+</beans>
