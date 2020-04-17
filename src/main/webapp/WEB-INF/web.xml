@@ -25,7 +25,7 @@
 				<listener-class>a.b.test.listener.MyHttpSessionListenerss</listener-class>
 			</listener>
 			<session-config>
-				<session-timeout>10</session-timeout>
+				<session-timeout>30</session-timeout>
 			</session-config>
 	<!--test listener end -->
 

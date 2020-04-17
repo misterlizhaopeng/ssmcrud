@@ -71,7 +71,4 @@
 		 </aop:config>
 		<!--  注意：下面是开启基于注解的事务与上面xml声明式事务对应记忆!  -->
 		<!-- <tx:annotation-driven transaction-manager="dataSourceTransactionManager" /> -->
-		 
-		
-		 
 </beans>

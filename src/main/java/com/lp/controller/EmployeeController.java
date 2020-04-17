@@ -28,6 +28,14 @@ import com.lp.service.EmployeeService;
 @Controller
 public class EmployeeController {
  
+	
+	
+	
+	private static final String SUCCESS = "success";
+	
+	
+	
+	
 	@Autowired
 	EmployeeService employeeService;
 
