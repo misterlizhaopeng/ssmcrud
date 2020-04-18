@@ -1,6 +1,16 @@
 代码调试springmvc的流程：
 
+
+
+
+
+
 request->dispatcherServlet
+
+在springmvc容器中找是否存该request；如果不存在，则把该请求交给default-servlet-handler；
+如果存在，执行如下流程；
+
+
 1.通过 handlerMappings（【private List<HandlerMapping> handlerMappings;】） 拿到 handlerExecutionChain ；获取handler、拦截器列表；
     mappedHandler = getHandler(processedRequest)
 2.再通过 handlerAdapter （【private List<HandlerAdapter> handlerAdapters;】）拿到支持handler类型的 handlerAdapter 适配器对象，用于进行handle具体的业务方法；
