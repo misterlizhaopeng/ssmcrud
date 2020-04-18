@@ -7,25 +7,51 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
-	
+
 	<!-- 扫描的包 ; use-default-filters=false:表示不再扫描默认的过滤器 ，如果use-default-filters为true, 
 		ClassPathBeanDefinitionScanner会自动注册对@Component、@ManagedBean、@Named注解的Bean进行扫描。 -->
 	<context:component-scan base-package="com.lp" use-default-filters="false">
-		<!--只扫描控制器。 -->
+		<!--扫描指定注解类型的类 -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
 	</context:component-scan>
 
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/views/" />
 		<property name="suffix" value=".jsp" />
-		
 	</bean>
 
+	<!-- 统一异常 ;配置异常解析器:自动将异常对象信息，存放到request范围内 -->
+	<bean id="simpleMappingExceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<!-- 为所有的异常定义默认的异常处理页面，exceptionMappings未定义的异常使用本默认配置 -->
+		<property name="defaultErrorView" value="error"></property>
+		<!-- 定义异常处理页面用来获取异常信息的变量名，默认名为exception -->
+		<property name="exceptionAttribute" value="exceptions"></property>
+		<!-- 定义需要特殊处理的异常，用类名或完全路径名作为key，异常页文件名作为值， 将不同的异常映射到不同的页面上。 -->
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.ArrayIndexOutOfBoundsException">error/mathex</prop>
+				<prop key="java.io.IOException">error/ioexp</prop>
+				<prop key="java.sql.SQLException">error/sqlexp</prop>
+			</props>
+		</property>
+	</bean>
+
+
+
+	<mvc:interceptors>
+		<!-- 配置自定义拦截器 -->
+		<bean class="a.b.test.interceptor.MyFirstInterceptor" />
+		<!-- <mvc:interceptor> <bean class="a.b.test.interceptor.MyFirstInterceptor"></bean> 
+			<mvc:mapping path="asfd.do"/> </mvc:interceptor> -->
+	</mvc:interceptors>
+
 	<!-- 将springmvc 不能处理的文件交给 tomcat 处理 -->
-	<mvc:default-servlet-handler />
+	<mvc:default-servlet-handler
+		default-servlet-name="default" />
 
 	<!-- 为了正常访问 requestMapping -->
 	<mvc:annotation-driven />
-	
-	<mvc:view-controller path="/sucs" view-name="s2"/>
+
+	<mvc:view-controller path="/sucs" view-name="s2" />
 </beans>

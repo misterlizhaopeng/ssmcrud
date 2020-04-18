@@ -1,6 +1,7 @@
 package com.lp.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -41,7 +45,28 @@ public class EmployeeController {
 
 	@RequestMapping("/empsajax")
 	@ResponseBody
-	public Msg getEmpsByAjax(@RequestParam(value = "pn", defaultValue = "10") Integer pn) {
+	public Msg getEmpsByAjax(@RequestParam(value = "pn", defaultValue = "10") Integer pn,HttpServletRequest request) {
+		
+		//通过ServletContext获取spring容器，查看容器中的所有的bean start
+		
+		//org.springframework.web.context.WebApplicationContext.ROOT
+		String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
+		ConfigurableWebApplicationContext ctx = (ConfigurableWebApplicationContext)request.getServletContext().getAttribute(ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		
+		String[] names = ctx.getBeanDefinitionNames();
+		List<String> asList = Arrays.asList(names);
+		asList.forEach(a->{
+			System.out.println(a);
+		});
+		
+		WebApplicationContext c = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
+		System.out.println(c==ctx);
+//		request.getServletContext().getServlet("")
+		
+		//通过ServletContext获取spring容器，查看容器中的所有的bean end
+		
+		
+		
 		PageHelper.startPage(pn, 10);
 		List<Employee> allEmps = employeeService.getAllEmps();
 		PageInfo page = new PageInfo(allEmps, 10);

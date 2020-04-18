@@ -63,6 +63,7 @@
 	</filter-mapping>
 	
 	
+	<!--发送delete、put等特殊请求  -->
 	<filter>
 		<filter-name>HiddenHttpMethodFilter</filter-name>
 		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
