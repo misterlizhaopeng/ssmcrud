@@ -1,0 +1,35 @@
+代码调试springmvc的流程：
+
+request->dispatcherServlet
+1.通过 handlerMappings（【private List<HandlerMapping> handlerMappings;】） 拿到 handlerExecutionChain ；获取handler、拦截器列表；
+    mappedHandler = getHandler(processedRequest)
+2.再通过 handlerAdapter （【private List<HandlerAdapter> handlerAdapters;】）拿到支持handler类型的 handlerAdapter 适配器对象，用于进行handle具体的业务方法；
+    HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler())
+3.再通过handlerExecutionChain 执行拦截器集合的preHandle 方法；
+    mappedHandler.applyPreHandle(processedRequest, response)；//调用目标方法之前被调用； 返回true，则继续调用后续的拦截器和方法； 返回false，则不能继续调用后续的拦截器和方法；
+4.再通过适配器handlerAdapter handle具体的方法，返回mav视图数据；
+    mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+5.在通过 handlerExecutionChain 执行拦截器集合的 postHandle 方法；
+    mappedHandler.applyPostHandle(processedRequest, response, mv);// 执行方法之后，渲染视图之前执行
+6.如果没有异常，渲染视图；
+    processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
+    ...
+    渲染视图完成之后，调用 handlerExecutionChain 的 afterCompletion 方法；
+7.如果出现异常，出现异常执行handlerExecutionChain的 afterCompletion 方法；
+    triggerAfterCompletion(processedRequest, response, mappedHandler, ex)// 渲染视图之后调用
+
+
+
+概念：
+handlerExecutionChain ：其中有 处理对象handler、拦截器列表 interceptors；
+    HandlerExecutionChain mappedHandler；
+
+
+
+req:错误请求路径/empsajaxx
+ha适配器类型：
+org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter
+
+req:正确的请求路径/empsajax
+ha适配器类型：
+org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter@2a383f06  
